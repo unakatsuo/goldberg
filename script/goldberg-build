@@ -30,14 +30,14 @@ rvm_script_sourced()
   elif [ -e /usr/local/rvm/scripts/rvm ]; then
     source /usr/local/rvm/scripts/rvm
   else
-    return -1
+    return 1
   fi
 }
 
 update_bundle()
 {
   if [ -e Gemfile ]; then
-    bundle check --no-color || bundle install --no-color || return -1
+    bundle check --no-color || bundle install --no-color || return 1
   else
     echo "No Gemfile found"
   fi
