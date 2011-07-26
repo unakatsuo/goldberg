@@ -113,6 +113,16 @@ describe Build do
       build.run
     end
 
+    it "runs the complex build command" do
+      config = Project::Configuration.new
+      project.stub(:config).and_return(config)
+      config.command = 'bash && ls /unknownpathxx || echo "test"'
+      expect_command("script/goldberg-build '#{project.name}' '1.9.2' '#{ENV['HOME']}/.goldberg/projects/#{project.name}/code' '#{ENV['HOME']}/.goldberg/projects/#{project.name}/builds/1/build_log' '#{ENV['HOME']}/.goldberg/projects/#{project.name}/builds/1/artefacts' '0' '' 'bash && ls /unknownpathxx || echo \"test\"'",
+        :running? => false, :fork => nil, :success? => true
+      )
+      build.run
+    end
+
     it "sets build status to failed if the build command succeeds" do
       Command.stub(:new).and_return(mock(Command, :execute => true, :running? => false, :fork => nil, :success? => true))
       build.run

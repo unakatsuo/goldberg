@@ -138,6 +138,20 @@ describe Project do
       project.run_build
     end
 
+    it "is able to run the sequence of custom commands includes shell operators" do
+      build = Build.new
+      project.builds.should_receive(:create!).with(:number => 1, :previous_build_revision => "", :ruby => RUBY_VERSION, :environment_string => "").and_return(build)
+      build.should_receive(:run)
+
+      File.stub!(:exists?).with(File.expand_path('goldberg_config.rb', project.code_path)).and_return(true)
+      File.stub!(:exists?).with(File.expand_path('goldberg_config.rb', project.path)).and_return(false)
+      Environment.stub!(:read_file).with(File.expand_path('goldberg_config.rb', project.code_path)).and_return("Project.configure { |config| config.command = 'bash && bash && ls /unknownpathxx || bash' }")
+      project.build_command.should eq('bash && bash && ls /unknownpathxx || bash')
+      project.repository.should_receive(:update).and_return(true)
+      project.stub!(:prepare_for_build).and_return(true)
+      project.run_build
+    end
+
     context "with build requested" do
       it "runs the build even if there are no updates" do
         build = Build.new
